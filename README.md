@@ -25,7 +25,7 @@ Tensorflow
 
 Dataset can be downloaded from this link & to be store inside "input" folder in main directory : <br />
 https://www.kaggle.com/andrewmvd/ocular-disease-recognition-odir5k <br />
-
+ ```
 import os
 import numpy as np 
 import pandas as pd 
@@ -34,7 +34,8 @@ import random
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from tensorflow.keras.preprocessing.image import ImageDataGenerator 
-
+```
+```
 df = pd.read_csv("/kaggle/input/ocular-disease-recognition-odir5k/full_df.csv")
 df
 def has_cataract(text):
@@ -42,6 +43,8 @@ def has_cataract(text):
         return 1
     else:
         return 0
+```
+```
 df["left_cataract"] = df["Left-Diagnostic Keywords"].apply(lambda x: has_cataract(x))
 df["right_cataract"] = df["Right-Diagnostic Keywords"].apply(lambda x: has_cataract(x))
 left_cataract = df.loc[(df.C ==1) & (df.left_cataract == 1)]["Left-Fundus"].values
@@ -59,7 +62,8 @@ right_normal[:15]
 cataract = np.concatenate((left_cataract,right_cataract),axis=0)
 normal = np.concatenate((left_normal,right_normal),axis=0)
 print(len(cataract),len(normal))
-
+```
+```
 from tensorflow.keras.preprocessing.image import load_img,img_to_array
 dataset_dir = "/kaggle/input/ocular-disease-recognition-odir5k/preprocessed_images/"
 image_size=224
@@ -77,12 +81,14 @@ def create_dataset(image_category,label):
         dataset.append([np.array(image),np.array(label)])
     random.shuffle(dataset)
     return dataset
-
+```
+```
 dataset = create_dataset(cataract,1)
 len(dataset)
 dataset = create_dataset(normal,0)
 len(dataset)
-
+```
+```
 plt.figure(figsize=(12,7))
 for i in range(10):
     sample = random.choice(range(len(dataset)))
@@ -96,14 +102,16 @@ for i in range(10):
     plt.imshow(image)
     plt.xlabel(label)
 plt.tight_layout() 
-
+```
+```
 x = np.array([i[0] for i in dataset]).reshape(-1,image_size,image_size,3)
 y = np.array([i[1] for i in dataset])
 from sklearn.model_selection import train_test_split
 x_train,x_test,y_train,y_test = train_test_split(x,y,test_size=0.2)
 count_ones = np.sum(y_test == 1)
 count_ones
-
+```
+```
 from tensorflow.keras.applications.vgg19 import VGG19
 vgg = VGG19(weights="imagenet",include_top = False,input_shape=(image_size,image_size,3))
 
@@ -158,7 +166,8 @@ plt.xlabel("Epochs")
 plt.ylabel("Loss")
 plt.legend(["Train","val"],loc = "upper left")
 plt.show()
-
+```
+```
 plt.figure(figsize=(12,7))
 for i in range(10):
     sample = random.choice(range(len(x_test)))
@@ -178,18 +187,21 @@ for i in range(10):
     plt.imshow(image)
     plt.xlabel("Actual:{}\nPrediction:{}".format(label,pred_label))
 plt.tight_layout() 
-
+```
 ### Load and preprocess the new image
+```
 new_image = cv2.imread("/kaggle/input/ocular-disease-recognition-odir5k/preprocessed_images/4689_right.jpg", cv2.IMREAD_COLOR)
 new_image = cv2.resize(new_image, (image_size, image_size))
 new_image = np.array(new_image).reshape(1, image_size, image_size, 3)
 prediction = model.predict_classes(new_image)
 prediction
+```
 
 The output looks like : 
-![screenshot](eye1.png)
-![screenshot](eye2.png)
-![screenshot](eye3.png)
-![screenshot](eye4.png)
+![image](https://github.com/SAFZZ/Cataract-Detection/assets/75234912/6151f8b0-e5a7-4ac3-bad2-b634ac83f845)
+![image](https://github.com/SAFZZ/Cataract-Detection/assets/75234912/5a825dfc-7149-4159-a964-d6b6e705d481)
+![image](https://github.com/SAFZZ/Cataract-Detection/assets/75234912/bce68773-6b08-44bb-8d65-f281d8ed8a87)
+
+
 
 
